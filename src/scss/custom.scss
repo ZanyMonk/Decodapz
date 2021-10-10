@@ -1,0 +1,15 @@
+@import 'variables';
+@import 'node_modules/bootstrap/scss/bootstrap';
+
+.setting button {
+  transition: all .5s;
+  padding: 0 2px;
+  height: $setting-height;
+  width: $setting-height;
+}
+
+textarea.no-wrap {
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
