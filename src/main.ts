@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
+import CryptoJS from 'crypto-js/index'
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import './scss/custom.scss'
@@ -8,7 +9,13 @@ import './scss/custom.scss'
   const app = createApp(App)
   const encoders = Object.fromEntries(await Promise.all([
     'hex', 'url', 'xor', 'ascii', 'base64', 'decimal', 'info'
-  ].map(async (name) => [name, await import('./encoders/' + name)])));
+  ].map(async (name) => {
+    const encoder = await import('./encoders/' + name)
+    encoder.$libs = {
+      CryptoJS
+    }
+    return [name, encoder]
+  })));
 
   app.mixin({
     methods: {
