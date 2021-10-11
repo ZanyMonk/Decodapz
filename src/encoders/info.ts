@@ -35,6 +35,6 @@ module.exports = {
   },
 
   decode(string: string) {
-    return false;
+    return true;
   }
 }

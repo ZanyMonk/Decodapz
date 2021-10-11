@@ -1,23 +1,23 @@
 <template>
-  <div class="setting setting-string">
-    <button :class="[{open: visible}, ('btn-' + (visible ? 'primary' : 'dark')), 'btn btn-sm']"
-            @click="debouncedOnButtonClicked()"
-            @focus="debouncedOnButtonClicked()"
+  <div :class="[{open: visible}, 'setting setting-string']">
+    <button :class="['btn-' + (visible ? 'primary' : 'dark'), 'btn btn-sm']"
+            @click="onButtonClicked()"
+            @focus="onButtonClicked()"
             data-bs-toggle="tooltip" data-bs-placement="bottom" :title="setting.label || setting.name"
     >
       <i :class="setting.icon ? 'bi-' + setting.icon : 'bi-hash'"></i>
     </button>
     <input type="text" ref="fieldInput"
            v-bind:value="setting.value" v-show="visible"
-           @keyup.esc="onInputBlur()"
+           @keyup.esc="close()"
            @input="$emit('input', $event)"
-           @blur="onInputBlur()"
+           @blur="close()"
     >
   </div>
 </template>
 
 <script>
-import { debounce } from "debounce";
+import { debounce } from 'debounce';
 
 export default {
   name: 'TextSetting',
@@ -27,32 +27,33 @@ export default {
       required: true
     }
   },
-  created() {
-    this.debouncedOnButtonClicked = debounce(this.onButtonClicked, 200)
-  },
   data() {
     return {
-      visible: false
+      visible: false,
+      closedRecently: false
     }
   },
   methods: {
-    onButtonClicked() {
-      console.log('onButtonClicked');
-      if (this.visible) {
-        this.visible = false;
-      } else {
+    open() {
+      if (!this.closedRecently) {
         this.visible = true
         this.$nextTick(() => {
           this.$refs.fieldInput.select()
         })
       }
     },
-    onInputBlur() {
-      console.log('onInputBlur');
-      setTimeout(() => {
-        this.visible = false
-      }, 300)
-    }
+    close() {
+      this.visible = false
+
+      if (this.closedRecently) clearTimeout(this.closedRecently)
+      this.closedRecently = setTimeout(() => {
+        this.closedRecently = false
+      }, 500)
+    },
+    onButtonClicked: debounce(function () {
+      if (this.visible) this.close()
+      else this.open()
+    }, 200, true),
   }
 }
 </script>
@@ -67,17 +68,12 @@ export default {
   }
 
   button {
-    transition: all .5s;
+    transition: background-color .3s;
     padding: 0 2px;
     height: $setting-height;
     width: $setting-height;
     z-index: 2;
-
-    &.open {
-      position: absolute;
-      left: 0;
-      border-radius: 3px 0 0 3px;
-    }
+    border-radius: .3rem;
 
     i {
       font-size: 16px;
@@ -90,21 +86,27 @@ export default {
   }
 
   input {
-    position: absolute;
-    left: 0;
-    transition: all .5s, bottom .5s;
     height: $setting-height;
-    width: $setting-height;
+    width: 100%;
     font-size: 14px;
     border: 1px solid #d4d4d4;
     border-left: none;
-    border-radius: 5px 3px 3px 5px;
-    padding-left: $setting-height + 5px;
+    border-radius: 0 3px 3px 0;
     z-index: 1;
+    outline: none;
+  }
 
-    &:focus {
-      outline: none;
-      width: 100%;
+
+  &.open {
+    position: absolute;
+    display: flex;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    button {
+      flex: 0 0 $setting-height;
+      border-radius: .2rem 0 0 .2rem;
     }
   }
 }

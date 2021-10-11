@@ -14,6 +14,9 @@
         <CheckboxSetting v-for="(setting, name) in booleanSettings" :key="name"
                      :setting="setting" @input="settingChanged(setting, $event)"
         />
+<!--        <DropdownSetting v-for="(setting, name) in complexSettings" :key="name"-->
+<!--                     :setting="setting" @input="settingChanged(setting, $event)"-->
+<!--        />-->
       </div>
     </div>
   </div>
@@ -23,24 +26,26 @@
 import { Tooltip } from 'bootstrap';
 
 import TextSetting from './TextSetting.vue'
+import DropdownSetting from './DropdownSetting.vue'
 import CheckboxSetting from './CheckboxSetting.vue'
 
 function pick(obj, predicate) {
   if (!obj || typeof obj !== 'object') return obj
 
-  const newObj = {};
+  const newObj = {}
 
   for (const [name, value] of Object.entries(obj)) {
     if (!predicate(name, value)) continue
     newObj[name] = value
   }
-  return newObj;
+  return newObj
 }
 
 export default {
   name: 'AutoDecoder',
   components: {
     TextSetting,
+    DropdownSetting,
     CheckboxSetting
   },
   props: {
@@ -72,15 +77,15 @@ export default {
       this.hasError = false
       const decoded = await this.decode(this.encodedValue)
 
-      if (newValue === oldValue                                      // Value has not changed
+      if (   newValue === oldValue                                      // Value has not changed
           || newValue.length === decoded.length && newValue === decoded // Own modification
-      ) return;
+      ) return
 
       if (newValue === false) {
-        this.encodedValue = 'Could not decode';
-        this.hasError = true;
+        this.encodedValue = 'Could not decode'
+        this.hasError = true
       } else {
-        this.encodedValue = await this.encode(newValue);
+        this.encodedValue = await this.encode(newValue)
       }
     }
   },
@@ -93,10 +98,10 @@ export default {
     },
     async settingChanged(setting, value) {
       setting.value = value
-      this.encodedValue = await this.encode(this.value);
+      this.encodedValue = await this.encode(this.value)
     },
     async valueChanged(value) {
-      if (value.length === this.value.length && value === this.value) return false;
+      if (value.length === this.value.length && value === this.value) return false
 
       this.hasError = false
       const decoded = await this.decode(value)
@@ -104,8 +109,8 @@ export default {
       if (decoded === false) {
         this.hasError = true
         this.$emit('error')
-        return false;
-      }
+        return false
+      } else if (decoded === true) return
 
       this.$emit('value-changed', decoded)
       return decoded
@@ -117,6 +122,9 @@ export default {
     },
     booleanSettings() {
       return pick(this.encoder.settings, (name, setting) => setting.type === Boolean)
+    },
+    complexSettings() {
+      return pick(this.encoder.settings, (name, setting) => setting.type === Object)
     }
   },
   mounted() {

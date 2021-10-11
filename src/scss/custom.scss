@@ -1,6 +1,11 @@
 @import 'variables';
 @import 'node_modules/bootstrap/scss/bootstrap';
 
+*::-moz-selection,
+*::selection {
+  background: #1fff5a !important;
+}
+
 .setting button {
   transition: all .5s;
   padding: 0 2px;

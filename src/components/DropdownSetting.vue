@@ -1,18 +1,17 @@
 <template>
   <div class="setting setting-boolean">
     <button :class="[('btn-' + (setting.value ? 'primary' : 'dark')), 'btn btn-sm']"
-            @click="$emit('input', !setting.value)"
+            @click="$emit('input', setting.choices.urlSafe)"
             data-bs-toggle="tooltip" data-bs-placement="bottom" :title="setting.label || setting.name"
     >
-      <i :class="setting.icon ? 'bi-' + setting.icon : 'bi-toggle-on'" v-show="setting.value"></i>
-      <i :class="setting.icon ? 'bi-' + (setting.iconOff ? setting.iconOff : setting.icon) : 'bi-toggle-off'" v-show="!setting.value"></i>
+      <i :class="setting.icon ? 'bi-' + setting.icon : 'bi-sliders'"></i>
     </button>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'CheckboxSetting',
+  name: 'DropdownSetting',
   props: {
     setting: {
       type: Object,
