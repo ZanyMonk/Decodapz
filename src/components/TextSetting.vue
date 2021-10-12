@@ -9,8 +9,8 @@
     </button>
     <input type="text" ref="fieldInput"
            v-bind:value="setting.value" v-show="visible"
-           @keyup.esc="close()"
            @input="$emit('input', $event)"
+           @keyup.esc="close()"
            @blur="close()"
     >
   </div>
@@ -26,6 +26,9 @@ export default {
       type: Object,
       required: true
     }
+  },
+  created() {
+    console.log('MEH ?', this)
   },
   data() {
     return {
@@ -62,11 +65,6 @@ export default {
 @import './src/scss/variables';
 
 .setting-string {
-  button,
-  input {
-    bottom: 0;
-  }
-
   button {
     transition: background-color .3s;
     padding: 0 2px;

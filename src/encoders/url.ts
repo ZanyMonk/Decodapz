@@ -1,12 +1,14 @@
-module.exports = {
-  settings: {
-    all: {
-      type: Boolean,
+import Encoder from '@/types/Encoder'
+import GenericSetting from "@/types/GenericSetting";
+
+export class Url extends Encoder {
+  settings = {
+    all: new GenericSetting({
       icon: 'asterisk',
       label: 'Encode all characters',
       value: false
-    }
-  },
+    })
+  }
 
   encode(string: string) {
     if (this.settings.all.value) {
@@ -17,9 +19,11 @@ module.exports = {
     }
 
     return encodeURIComponent(string);
-  },
+  }
 
   decode(string: string) {
     return decodeURIComponent(string);
   }
 }
+
+export default Url

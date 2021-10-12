@@ -1,11 +1,15 @@
-module.exports = {
-  label: 'ASCII/UTF-8',
+import Encoder from '@/types/Encoder'
 
-  encode(string: string) {
-    return string;
-  },
+export class Ascii extends Encoder {
+  label = 'ASCII/UTF-8'
 
-  decode(string: string) {
-    return string;
+  encode(input: string): string {
+    return input;
+  }
+
+  decode(input: string): string {
+    return input;
   }
 }
+
+export default Ascii

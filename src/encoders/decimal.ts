@@ -1,29 +1,33 @@
-module.exports = {
-  settings: {
-    prefix: {
-      type: String,
+import Encoder from '@/types/Encoder'
+import GenericSetting from "@/types/GenericSetting";
+
+export class Decimal extends Encoder {
+  settings = {
+    prefix: new GenericSetting<string>({
       icon: 'chevron-up',
       label: 'Prefix',
       value: ''
-    },
-    separator: {
-      type: String,
+    }),
+    separator: new GenericSetting<string>({
       icon: 'paint-bucket',
       label: 'Separator',
       value: ' '
-    }
-  },
+    })
+  }
 
-  encode(string: string) {
-    return new TextEncoder().encode('' + string)
-        .map((d) => this.settings.prefix.value + d)
-        .join(this.settings.separator.value);
-  },
+  encode(input: string): string {
+    const encoded: string[] = []
+    new TextEncoder().encode('' + input).forEach((d) => {
+      encoded.push(this.settings.prefix.value + d)
+    })
 
-  decode(string: string) {
+    return encoded.join(this.settings.separator.value);
+  }
+
+  decode(input: string): string {
     const separator = this.settings.separator.value || ' ';
     return String.fromCharCode(...(
-      ('' + string)
+      ('' + input)
         .replace(this.settings.prefix.value, '')
         .replace(/[^0-9]+/, separator)
         .split(separator)
@@ -31,3 +35,5 @@ module.exports = {
     ))
   }
 }
+
+export default Decimal

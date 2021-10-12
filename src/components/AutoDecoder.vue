@@ -14,9 +14,9 @@
         <CheckboxSetting v-for="(setting, name) in booleanSettings" :key="name"
                      :setting="setting" @input="settingChanged(setting, $event)"
         />
-<!--        <DropdownSetting v-for="(setting, name) in complexSettings" :key="name"-->
-<!--                     :setting="setting" @input="settingChanged(setting, $event)"-->
-<!--        />-->
+        <DropdownSetting v-for="(setting, name) in objectSettings" :key="name"
+                     :setting="setting" @input="settingChanged(setting, $event)"
+        />
       </div>
     </div>
   </div>
@@ -28,18 +28,6 @@ import { Tooltip } from 'bootstrap';
 import TextSetting from './TextSetting.vue'
 import DropdownSetting from './DropdownSetting.vue'
 import CheckboxSetting from './CheckboxSetting.vue'
-
-function pick(obj, predicate) {
-  if (!obj || typeof obj !== 'object') return obj
-
-  const newObj = {}
-
-  for (const [name, value] of Object.entries(obj)) {
-    if (!predicate(name, value)) continue
-    newObj[name] = value
-  }
-  return newObj
-}
 
 export default {
   name: 'AutoDecoder',
@@ -60,13 +48,12 @@ export default {
   },
   data() {
     const encoder = this.getEncoder(this.type)
-
     Promise.resolve(encoder.encode(this.value)).then((value) => {
       this.encodedValue = value
     })
 
     return {
-      encoder: encoder,
+      encoder,
       encodedValue: '',
       hasError: false,
       isFocused: false
@@ -90,6 +77,17 @@ export default {
     }
   },
   methods: {
+    pick(obj, predicate) {
+      if (!obj || typeof obj !== 'object') return obj
+
+      const newObj = {}
+
+      for (const [name, value] of Object.entries(obj)) {
+        if (!predicate(name, value)) continue
+        newObj[name] = value
+      }
+      return newObj
+    },
     async decode(string) {
       return await this.decodeValue(this.type.toLowerCase(), string)
     },
@@ -118,13 +116,13 @@ export default {
   },
   computed: {
     stringSettings() {
-      return pick(this.encoder.settings, (name, setting) => setting.type === String)
+      return this.encoder.stringSettings
     },
     booleanSettings() {
-      return pick(this.encoder.settings, (name, setting) => setting.type === Boolean)
+      return this.encoder.booleanSettings
     },
-    complexSettings() {
-      return pick(this.encoder.settings, (name, setting) => setting.type === Object)
+    objectSettings() {
+      return this.encoder.objectSettings
     }
   },
   mounted() {

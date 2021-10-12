@@ -4,6 +4,7 @@ import CryptoJS from 'crypto-js/index'
 
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import './scss/custom.scss'
+import Encoder from "@/types/Encoder";
 
 (async () => {
   const app = createApp(App)
@@ -11,10 +12,8 @@ import './scss/custom.scss'
     'hex', 'url', 'xor', 'ascii', 'base64', 'decimal', 'info'
   ].map(async (name) => {
     const encoder = await import('./encoders/' + name)
-    encoder.$libs = {
-      CryptoJS
-    }
-    return [name, encoder]
+    const instance = new encoder.default()
+    return [name, instance]
   })));
 
   app.mixin({
@@ -22,7 +21,7 @@ import './scss/custom.scss'
       slugify(string: string) {
         return ('' + string).toLowerCase().replace(' ', '-')
       },
-      getEncoder(type: string) {
+      getEncoder(type: string): Encoder|boolean {
         const slug = this.slugify(type);
         if (!(slug in encoders)) return false;
         return encoders[slug];

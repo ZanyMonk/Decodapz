@@ -1,29 +1,30 @@
-module.exports = {
-  settings: {
-    prefix: {
-      type: String,
+import Encoder from '@/types/Encoder'
+import GenericSetting from "@/types/GenericSetting";
+
+export class Hex extends Encoder {
+  settings = {
+    prefix: new GenericSetting<string>({
       icon: 'chevron-up',
       label: 'Prefix',
       value: ''
-    },
-    separator: {
-      type: String,
+    }),
+    separator: new GenericSetting<string>({
       icon: 'paint-bucket',
       label: 'Separator',
       value: ' '
-    }
-  },
+    })
+  }
 
-  encode(string: string) {
+  encode(input: string): string {
     const encoded: string[] = [];
 
-    new TextEncoder().encode('' + string)
+    new TextEncoder().encode('' + input)
       .forEach((c) => {
         encoded.push(c.toString(16));
       })
 
     return encoded.join(this.settings.separator.value);
-  },
+  }
 
   decode(string: string) {
     return (
@@ -36,3 +37,5 @@ module.exports = {
      .join('');
   }
 }
+
+export default Hex
