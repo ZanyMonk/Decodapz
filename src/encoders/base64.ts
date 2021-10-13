@@ -6,6 +6,7 @@ export class Base64 extends Encoder {
   settings = {
     mode: new MultichoiceSetting({
       label: '',
+      alwaysShow: true,
       value: null,
       choices: {
         standard: {

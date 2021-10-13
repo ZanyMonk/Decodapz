@@ -5,6 +5,7 @@ export type SettingType = string | number | boolean | object;
 export class GenericSetting<Type extends SettingType> implements Setting {
     label: string
     icon?: string
+    alwaysShow?: boolean = false
     value: Type
 
     constructor(config: SettingConfig) {

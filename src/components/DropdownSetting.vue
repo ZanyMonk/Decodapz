@@ -9,10 +9,13 @@
     </button>
     <div class="field" v-show="visible">
       <input type="text" ref="fieldInput"
-             v-model="value"
              :placeholder="placeholder"
-             @keyup.esc="close()"
+             v-model="value"
              @blur="close()"
+             @keyup.esc="close()"
+             @keyup.down="navigate(1)"
+             @keyup.up="navigate(-1)"
+             @keyup.enter="chooseSelected()"
              @focusin="dropdownVisible = true"
       >
       <div :class="[{active: dropdownVisible}, 'arrow']"
@@ -21,7 +24,8 @@
         <i class="bi-chevron-down"></i>
       </div>
       <div class="dropdown" v-show="dropdownVisible">
-        <div class="choice" v-for="(choice, name) in filteredChoices" :key="name"
+        <div v-for="(choice, name) in filteredChoices" :key="name"
+             :class="[{active: selected === name}, 'choice']"
              @click="choose(choice)"
         >
           {{ choice.label }} ({{ choice.value }})
@@ -34,6 +38,9 @@
 <script>
 import {debounce} from 'debounce';
 
+/**
+ * @TODO Abstract button-field widget
+ */
 export default {
   name: 'DropdownSetting',
   props: {
@@ -46,6 +53,7 @@ export default {
     return {
       value: '',
       placeholder: '',
+      selected: null,
       visible: false,
       closedRecently: false,
       dropdownVisible: true
@@ -53,11 +61,12 @@ export default {
   },
   computed: {
     filteredChoices() {
-      if (!this.value) return this.setting.choices
+      const value = this.value
+      if (!value) return this.setting.choices
 
       const choices = {}
       for (const [name, choice] of Object.entries(this.setting.choices)) {
-        if (choice.label.toLowerCase().includes(this.value.toLowerCase())){
+        if (choice.label.toLowerCase().includes(value.toLowerCase())){
           choices[name] = choice
         }
       }
@@ -75,18 +84,52 @@ export default {
       }
     },
     close() {
-      this.visible = false
+      setTimeout(() => {
+        this.visible = false
+        this.selected = null
 
-      if (this.closedRecently) clearTimeout(this.closedRecently)
-      this.closedRecently = setTimeout(() => {
-        this.closedRecently = false
-      }, 500)
+        if (this.closedRecently) clearTimeout(this.closedRecently)
+        this.closedRecently = setTimeout(() => {
+          this.closedRecently = false
+        }, 500)
+      }, 200)
     },
     choose(choice) {
       this.$emit('input', choice)
+      this.selected = choice
       this.placeholder = `${choice.label} (${choice.value})`
       this.value = ''
       this.dropdownVisible = false
+      this.close()
+    },
+    navigate(step = 1) {
+      const choices = this.filteredChoices
+      const keys = Object.keys(choices)
+
+      if (!keys.length) return
+
+      let index = Math.max(0, keys.indexOf(this.selected))
+      if (index > -1 && this.selected) {
+        step = Math.max(-1, Math.min(step, 1))
+        const newIndex = (((index+step) % keys.length) + keys.length) % keys.length // Modulo that's not broken ...
+        this.selected = keys[newIndex]
+      } else {
+        this.selected = keys[step > 0 ? 0 : keys.length-1]
+      }
+
+      const choice = choices[this.selected]
+      this.$emit('input', choice)
+      this.placeholder = `${choice.label} (${choice.value})`
+      this.value = ''
+    },
+    chooseSelected() {
+      const choices = this.filteredChoices
+      console.log(choices, this.selected, this.selected in choices)
+      if (!this.selected || !(this.selected in choices)) this.value = choices[Object.keys(choices)[0]]
+      const choice = this.filteredChoices[this.selected]
+      this.$emit('input', choice)
+      this.placeholder = `${choice.label} (${choice.value})`
+      this.value = ''
       this.close()
     },
     onButtonClicked: debounce(function () {
@@ -173,8 +216,9 @@ export default {
     .choice {
       cursor: pointer;
 
-      &:hover {
-        background: $decoder-border-color;
+      &:hover,
+      &.active {
+        background-color: $decoder-border-color;
       }
     }
   }
